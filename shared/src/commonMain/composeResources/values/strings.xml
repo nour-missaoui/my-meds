@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Meds Reminder</string>
+
+    <string name="nav_today">Today</string>
+    <string name="nav_meds">Meds</string>
+    <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
+
+    <string name="title_today">Today</string>
+    <string name="title_medications">Medications</string>
+    <string name="title_new_medication">New medication</string>
+    <string name="title_edit_medication">Edit medication</string>
+    <string name="title_history">History</string>
+    <string name="title_settings">Settings</string>
+
+    <string name="onboarding_title">Your medications, right on time</string>
+    <string name="onboarding_body">Gentle reminders for every dose — daily, weekly, monthly or once a year.</string>
+
+    <string name="action_get_started">Get started</string>
+    <string name="action_save">Save</string>
+    <string name="action_back">Back</string>
+    <string name="action_add_medication">Add medication</string>
+</resources>
