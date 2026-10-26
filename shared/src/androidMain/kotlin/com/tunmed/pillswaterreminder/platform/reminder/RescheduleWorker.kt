@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-/** Daily safety net in case an alarm was lost (OEM battery savers, force-stop, …). */
 class RescheduleWorker(
     appContext: Context,
     params: WorkerParameters,

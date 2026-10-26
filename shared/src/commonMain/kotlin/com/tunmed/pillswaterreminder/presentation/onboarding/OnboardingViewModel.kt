@@ -9,7 +9,6 @@ class OnboardingViewModel(
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
-    /** Phase 3: permission requests (notifications, exact alarms) before finishing. */
     fun finish(onDone: () -> Unit) {
         viewModelScope.launch {
             settingsRepository.update { it.copy(onboardingDone = true) }

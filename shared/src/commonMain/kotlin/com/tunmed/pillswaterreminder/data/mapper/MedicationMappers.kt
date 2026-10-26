@@ -5,6 +5,7 @@ import com.tunmed.pillswaterreminder.data.local.entity.MedScheduleEntity
 import com.tunmed.pillswaterreminder.data.local.entity.MedicationEntity
 import com.tunmed.pillswaterreminder.domain.model.DoseLog
 import com.tunmed.pillswaterreminder.domain.model.DoseStatus
+import com.tunmed.pillswaterreminder.domain.model.DoseUnit
 import com.tunmed.pillswaterreminder.domain.model.MedSchedule
 import com.tunmed.pillswaterreminder.domain.model.Medication
 import com.tunmed.pillswaterreminder.domain.model.MedicationColor
@@ -18,8 +19,6 @@ import kotlinx.datetime.Month
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.number
 
-// ---- Medication ----
-
 internal fun MedicationEntity.toDomain(): Medication = Medication(
     id = id,
     name = name,
@@ -30,6 +29,9 @@ internal fun MedicationEntity.toDomain(): Medication = Medication(
     startDate = LocalDate.parse(startDate),
     endDate = endDate?.let { LocalDate.parse(it) },
     status = MedicationStatus.valueOf(status),
+    doseAmount = doseAmount,
+    doseUnit = doseUnit?.let { name -> DoseUnit.entries.firstOrNull { it.name == name } },
+    strength = strength,
 )
 
 internal fun Medication.toEntity(): MedicationEntity = MedicationEntity(
@@ -42,9 +44,10 @@ internal fun Medication.toEntity(): MedicationEntity = MedicationEntity(
     startDate = startDate.toString(),
     endDate = endDate?.toString(),
     status = status.name,
+    doseAmount = doseAmount,
+    doseUnit = doseUnit?.name,
+    strength = strength,
 )
-
-// ---- Schedule (RecurrenceRule <-> flat columns) ----
 
 private const val RULE_DAILY = "DAILY"
 private const val RULE_EVERY_N_DAYS = "EVERY_N_DAYS"
@@ -62,6 +65,7 @@ internal fun MedScheduleEntity.toDomain(): MedSchedule = MedSchedule(
     headsUpDays = headsUpDays,
     validFrom = LocalDate.parse(validFrom),
     validTo = validTo?.let { LocalDate.parse(it) },
+    doseByTime = timeDoses.decodeTimeDoses(),
 )
 
 private fun MedScheduleEntity.toRule(): RecurrenceRule = when (ruleType) {
@@ -92,6 +96,7 @@ internal fun MedSchedule.toEntity(): MedScheduleEntity {
         headsUpDays = headsUpDays,
         validFrom = validFrom.toString(),
         validTo = validTo?.toString(),
+        timeDoses = doseByTime.encodeTimeDoses(),
     )
     return when (val r = rule) {
         RecurrenceRule.Daily -> base.copy(ruleType = RULE_DAILY)
@@ -118,8 +123,6 @@ internal fun MedSchedule.toEntity(): MedScheduleEntity {
         RecurrenceRule.AsNeeded -> base
     }
 }
-
-// ---- Dose log ----
 
 internal fun DoseLogEntity.toDomain(): DoseLog = DoseLog(
     id = id,

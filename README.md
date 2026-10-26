@@ -1,6 +1,8 @@
 # Meds Reminder (PillswaterReminder)
 
-Architecture, folder layout and conventions: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+Documentation is kept outside the code: architecture, conventions and device tests in the Claude doc
+[Meds Reminder — Developer docs](https://claude.ai/artifact/55Jf4ciYi6LZrzXcHpcMBv); the product spec in
+[Meds Reminder — Plan & Spec](https://claude.ai/artifact/PpkwHWTchLajYY23ZZeTQb).
 
 This is a Kotlin Multiplatform project targeting Android, iOS.
 

@@ -37,6 +37,9 @@ interface MedicationDao {
     )
     suspend fun getActiveSchedules(): List<MedScheduleEntity>
 
+    @Query("SELECT * FROM med_schedule WHERE validTo IS NULL")
+    fun observeOpenSchedules(): Flow<List<MedScheduleEntity>>
+
     @Insert
     suspend fun insertSchedule(schedule: MedScheduleEntity): Long
 

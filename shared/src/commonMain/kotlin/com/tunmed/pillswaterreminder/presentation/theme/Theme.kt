@@ -9,7 +9,6 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-/** Aqua (Figma "water" tokens) = primary brand colour; coral ("med" tokens) = medication accents. */
 private val LightColors = lightColorScheme(
     primary = Palette.Aqua,
     onPrimary = Palette.TextOnColor,
@@ -38,7 +37,6 @@ private val LightColors = lightColorScheme(
     scrim = Palette.BgScrim,
 )
 
-/** App colours that Material 3 has no slot for (aqua bright, dose statuses, …). */
 @Immutable
 data class ExtendedColors(
     val aquaBright: Color,
@@ -85,7 +83,6 @@ fun AppTheme(content: @Composable () -> Unit) {
     }
 }
 
-/** Access with AppTheme.colors.taken, AppTheme.spacing.l, … */
 object AppTheme {
     val colors: ExtendedColors
         @Composable @ReadOnlyComposable get() = LocalExtendedColors.current

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notif_action_taken">Taken</string>
+    <string name="notif_action_snooze">Snooze</string>
+    <string name="notif_action_skip">Skip</string>
+    <string name="notif_dose_text">%1$s · %2$s</string>
+    <string name="notif_public_title">Time for your medication</string>
+    <string name="notif_summary_title">Medications due</string>
+    <string name="notif_upcoming_title">Coming up: %1$s</string>
+    <plurals name="notif_upcoming_text">
+        <item quantity="one">Due tomorrow, %2$s</item>
+        <item quantity="other">Due in %1$d days, %2$s</item>
+    </plurals>
+</resources>

@@ -20,4 +20,184 @@
     <string name="action_save">Save</string>
     <string name="action_back">Back</string>
     <string name="action_add_medication">Add medication</string>
+
+    <string name="action_taken">Taken</string>
+    <string name="action_skip">Skip</string>
+    <string name="action_turn_on">Turn on</string>
+    <string name="action_allow">Allow</string>
+
+    <string name="today_empty_title">No medications yet</string>
+    <string name="today_empty_body">Add your first medication to get reminders.</string>
+    <string name="today_no_doses_title">Nothing due today</string>
+    <string name="today_no_doses_body">Your monthly, yearly and as-needed medications don’t have a dose today.</string>
+
+    <string name="status_upcoming">Upcoming</string>
+    <string name="status_due">Due now</string>
+    <string name="status_taken_at">Taken %1$s</string>
+    <string name="status_skipped">Skipped</string>
+    <string name="status_missed">Missed</string>
+    <string name="status_snoozed">Snoozed</string>
+    <string name="status_not_logged">Not logged</string>
+
+    <string name="banner_notifications_off">Notifications are off, so reminders can’t reach you.</string>
+    <string name="banner_exact_alarms_off">Exact alarms are off, so reminders can be up to 10 minutes late.</string>
+
+    <string name="label_name">Name</string>
+    <string name="label_dose">Dose</string>
+    <string name="label_times_per_day">Times a day</string>
+    <string name="times_hint">Tap a time to change it. Changing the number spreads the times between 08:00 and 20:00.</string>
+    <string name="times_error">Two doses are at the same time.</string>
+
+    <string name="action_delete_medication">Delete medication</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="delete_dialog_title">Delete %1$s?</string>
+    <string name="delete_dialog_body">It leaves your lists and stops reminding you. Doses you already logged stay in History.</string>
+
+    <string name="dose_mode_quick">Just the dose</string>
+    <string name="dose_mode_details">Details</string>
+    <string name="dose_quick_placeholder">e.g. 1 tablet, 500 mg</string>
+    <string name="label_form">Type</string>
+    <string name="label_amount">Amount</string>
+    <string name="label_unit">Unit</string>
+    <string name="label_strength">Strength (optional)</string>
+    <string name="strength_placeholder">e.g. 500 mg</string>
+    <string name="amount_error">Enter a number, e.g. 1 or 0.5</string>
+    <string name="dose_preview">Reminders will show: %1$s</string>
+
+    <string name="form_tablet">Tablet</string>
+    <string name="form_capsule">Capsule</string>
+    <string name="form_liquid">Liquid (syrup, solution)</string>
+    <string name="form_powder">Powder or sachet</string>
+    <string name="form_injection">Injection or pen</string>
+    <string name="form_inhaler">Inhaler</string>
+    <string name="form_spray">Spray (nose, mouth)</string>
+    <string name="form_drops">Drops (eye, ear, nose)</string>
+    <string name="form_cream">Cream, ointment or gel</string>
+    <string name="form_patch">Patch</string>
+    <string name="form_suppository">Suppository or pessary</string>
+    <string name="form_other">Other</string>
+
+    <plurals name="unit_tablet">
+        <item quantity="one">tablet</item>
+        <item quantity="other">tablets</item>
+    </plurals>
+    <plurals name="unit_capsule">
+        <item quantity="one">capsule</item>
+        <item quantity="other">capsules</item>
+    </plurals>
+    <plurals name="unit_ml">
+        <item quantity="one">ml</item>
+        <item quantity="other">ml</item>
+    </plurals>
+    <plurals name="unit_sachet">
+        <item quantity="one">sachet</item>
+        <item quantity="other">sachets</item>
+    </plurals>
+    <plurals name="unit_injection">
+        <item quantity="one">injection</item>
+        <item quantity="other">injections</item>
+    </plurals>
+    <plurals name="unit_unit">
+        <item quantity="one">unit</item>
+        <item quantity="other">units</item>
+    </plurals>
+    <plurals name="unit_puff">
+        <item quantity="one">puff</item>
+        <item quantity="other">puffs</item>
+    </plurals>
+    <plurals name="unit_spray">
+        <item quantity="one">spray</item>
+        <item quantity="other">sprays</item>
+    </plurals>
+    <plurals name="unit_drop">
+        <item quantity="one">drop</item>
+        <item quantity="other">drops</item>
+    </plurals>
+    <plurals name="unit_application">
+        <item quantity="one">application</item>
+        <item quantity="other">applications</item>
+    </plurals>
+    <plurals name="unit_patch">
+        <item quantity="one">patch</item>
+        <item quantity="other">patches</item>
+    </plurals>
+    <plurals name="unit_suppository">
+        <item quantity="one">suppository</item>
+        <item quantity="other">suppositories</item>
+    </plurals>
+    <plurals name="unit_dose">
+        <item quantity="one">dose</item>
+        <item quantity="other">doses</item>
+    </plurals>
+
+    <string name="time_picker_title">Dose time</string>
+    <string name="action_ok">OK</string>
+    <string name="cd_fewer_times">One time less a day</string>
+    <string name="cd_more_times">One time more a day</string>
+    <string name="label_dose_per_time">Different dose at each time</string>
+    <string name="dose_per_time_hint">The dose is set for each time below.</string>
+
+    <string name="repeat_label">Repeats</string>
+    <string name="repeat_daily">Every day</string>
+    <string name="repeat_every_n_days">Every few days</string>
+    <string name="repeat_weekly">Every week</string>
+    <string name="repeat_monthly">Every month</string>
+    <string name="repeat_yearly">Every year</string>
+    <string name="repeat_as_needed">Only when needed</string>
+    <plurals name="every_n_days">
+        <item quantity="one">Every %1$d day</item>
+        <item quantity="other">Every %1$d days</item>
+    </plurals>
+    <string name="starting_label">Starting</string>
+    <string name="every_n_days_note">Counted from the start date, not from the last dose taken.</string>
+    <string name="weekdays_error">Pick at least one day.</string>
+    <string name="monthly_on_day">On a date</string>
+    <string name="monthly_on_weekday">On a weekday</string>
+    <string name="label_day">Day</string>
+    <string name="label_which">Which</string>
+    <string name="label_weekday">Weekday</string>
+    <string name="label_month">Month</string>
+    <string name="week_1">1st</string>
+    <string name="week_2">2nd</string>
+    <string name="week_3">3rd</string>
+    <string name="week_4">4th</string>
+    <string name="week_last">Last</string>
+    <string name="day_clamp_note">Months without day %1$d use their last day.</string>
+    <string name="feb29_note">In years without 29 February, it falls on 28 February.</string>
+    <string name="heads_up_label">Heads-up</string>
+    <string name="heads_up_off">Off</string>
+    <plurals name="heads_up_days">
+        <item quantity="one">%1$d day before</item>
+        <item quantity="other">%1$d days before</item>
+    </plurals>
+    <string name="as_needed_note">No reminders: take it when you need it.</string>
+    <string name="cd_fewer_days">Fewer days</string>
+    <string name="cd_more_days">More days</string>
+    <string name="month_1">January</string>
+    <string name="month_2">February</string>
+    <string name="month_3">March</string>
+    <string name="month_4">April</string>
+    <string name="month_5">May</string>
+    <string name="month_6">June</string>
+    <string name="month_7">July</string>
+    <string name="month_8">August</string>
+    <string name="month_9">September</string>
+    <string name="month_10">October</string>
+    <string name="month_11">November</string>
+    <string name="month_12">December</string>
+    <string name="weekday_1">Monday</string>
+    <string name="weekday_2">Tuesday</string>
+    <string name="weekday_3">Wednesday</string>
+    <string name="weekday_4">Thursday</string>
+    <string name="weekday_5">Friday</string>
+    <string name="weekday_6">Saturday</string>
+    <string name="weekday_7">Sunday</string>
+    <string name="weekday_short_1">Mon</string>
+    <string name="weekday_short_2">Tue</string>
+    <string name="weekday_short_3">Wed</string>
+    <string name="weekday_short_4">Thu</string>
+    <string name="weekday_short_5">Fri</string>
+    <string name="weekday_short_6">Sat</string>
+    <string name="weekday_short_7">Sun</string>
 </resources>

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "1961410b143d01cb8be07ca70fb2debb",
+    "identityHash": "723e9b18be967a975017b30afdcc51dc",
     "entities": [
       {
         "tableName": "medication",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `dose` TEXT NOT NULL, `form` TEXT NOT NULL, `note` TEXT, `color` TEXT NOT NULL, `startDate` TEXT NOT NULL, `endDate` TEXT, `status` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `dose` TEXT NOT NULL, `form` TEXT NOT NULL, `note` TEXT, `color` TEXT NOT NULL, `startDate` TEXT NOT NULL, `endDate` TEXT, `status` TEXT NOT NULL, `doseAmount` REAL, `doseUnit` TEXT, `strength` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -59,6 +59,21 @@
             "columnName": "status",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "doseAmount",
+            "columnName": "doseAmount",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "doseUnit",
+            "columnName": "doseUnit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "strength",
+            "columnName": "strength",
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -70,7 +85,7 @@
       },
       {
         "tableName": "med_schedule",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `medicationId` INTEGER NOT NULL, `ruleType` TEXT NOT NULL, `times` TEXT NOT NULL, `everyNDays` INTEGER, `anchorDate` TEXT, `weekdays` TEXT, `dayOfMonth` INTEGER, `weekOfMonth` INTEGER, `weekday` INTEGER, `month` INTEGER, `headsUpDays` INTEGER NOT NULL, `validFrom` TEXT NOT NULL, `validTo` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `medicationId` INTEGER NOT NULL, `ruleType` TEXT NOT NULL, `times` TEXT NOT NULL, `everyNDays` INTEGER, `anchorDate` TEXT, `weekdays` TEXT, `dayOfMonth` INTEGER, `weekOfMonth` INTEGER, `weekday` INTEGER, `month` INTEGER, `headsUpDays` INTEGER NOT NULL, `validFrom` TEXT NOT NULL, `validTo` TEXT, `timeDoses` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -146,6 +161,11 @@
           {
             "fieldPath": "validTo",
             "columnName": "validTo",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "timeDoses",
+            "columnName": "timeDoses",
             "affinity": "TEXT"
           }
         ],
@@ -229,7 +249,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1961410b143d01cb8be07ca70fb2debb')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '723e9b18be967a975017b30afdcc51dc')"
     ]
   }
 }

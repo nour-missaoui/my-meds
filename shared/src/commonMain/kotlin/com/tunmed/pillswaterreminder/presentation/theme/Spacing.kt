@@ -5,7 +5,6 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/** space/4 … space/32 from Figma. Use AppTheme.spacing.l instead of raw dp values. */
 @Immutable
 data class Spacing(
     val xs: Dp = 4.dp,

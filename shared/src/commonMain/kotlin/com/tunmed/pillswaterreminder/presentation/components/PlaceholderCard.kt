@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.tunmed.pillswaterreminder.presentation.theme.AppTheme
 
-/** Temporary block marking UI that is not built yet. Delete once every screen is done. */
 @Composable
 fun PlaceholderCard(title: String, body: String, modifier: Modifier = Modifier) {
     Card(

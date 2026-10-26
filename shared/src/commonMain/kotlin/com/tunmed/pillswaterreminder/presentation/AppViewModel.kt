@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-/** Root state: decides whether to start on Onboarding or Today. `null` while loading. */
 class AppViewModel(settingsRepository: SettingsRepository) : ViewModel() {
     val onboardingDone: StateFlow<Boolean?> = settingsRepository.observe()
         .map { it.onboardingDone }

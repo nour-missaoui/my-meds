@@ -13,7 +13,6 @@ composeMultiplatform = "1.12.1"
 junit = "4.13.2"
 kotlin = "2.4.20"
 material3 = "1.12.0-alpha03"
-# --- added for clean architecture setup ---
 androidx-datastore = "1.2.1"
 androidx-room3 = "3.0.3"
 androidx-sqlite = "2.7.1"
@@ -43,7 +42,6 @@ compose-material3 = { module = "org.jetbrains.compose.material3:material3", vers
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
-# --- added for clean architecture setup ---
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation" }
 androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "androidx-room3" }
 androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "androidx-room3" }

@@ -12,7 +12,6 @@ import pillswaterreminder.shared.generated.resources.nav_meds
 import pillswaterreminder.shared.generated.resources.nav_settings
 import pillswaterreminder.shared.generated.resources.nav_today
 
-/** The four bottom-navigation tabs. */
 enum class TopLevelDestination(
     val route: Any,
     val label: StringResource,

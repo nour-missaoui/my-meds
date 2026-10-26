@@ -8,10 +8,6 @@ import android.os.Build
 import com.tunmed.pillswaterreminder.domain.reminder.ReminderScheduler
 import com.tunmed.pillswaterreminder.domain.reminder.ScheduledAlarm
 
-/**
- * Keeps exactly one alarm armed: the next reminder. When it fires, ReminderReceiver
- * shows what is due and RescheduleAll arms the following one.
- */
 class AndroidReminderScheduler(private val context: Context) : ReminderScheduler {
 
     private val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java)
@@ -29,7 +25,6 @@ class AndroidReminderScheduler(private val context: Context) : ReminderScheduler
                 alarmManager.setWindow(AlarmManager.RTC_WAKEUP, triggerAtMillis, INEXACT_WINDOW_MILLIS, pendingIntent)
             }
         } catch (e: SecurityException) {
-            // Permission revoked between the check and the call: fall back to an inexact alarm.
             alarmManager.setWindow(AlarmManager.RTC_WAKEUP, triggerAtMillis, INEXACT_WINDOW_MILLIS, pendingIntent)
         }
     }

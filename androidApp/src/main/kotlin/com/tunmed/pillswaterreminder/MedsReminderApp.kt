@@ -3,8 +3,7 @@ package com.tunmed.pillswaterreminder
 import android.app.Application
 import com.tunmed.pillswaterreminder.di.androidPlatformModule
 import com.tunmed.pillswaterreminder.di.sharedModules
-import com.tunmed.pillswaterreminder.platform.notification.NotificationChannels
-import com.tunmed.pillswaterreminder.platform.reminder.RescheduleWorker
+import com.tunmed.pillswaterreminder.platform.reminder.ReminderBootstrap
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -18,7 +17,6 @@ class MedsReminderApp : Application() {
             androidContext(this@MedsReminderApp)
             modules(sharedModules() + androidPlatformModule)
         }
-        NotificationChannels.createAll(this)
-        RescheduleWorker.enqueueDaily(this)
+        ReminderBootstrap.start(this)
     }
 }

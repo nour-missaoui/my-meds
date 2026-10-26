@@ -18,10 +18,6 @@ import pillswaterreminder.shared.generated.resources.Res
 import pillswaterreminder.shared.generated.resources.action_back
 import pillswaterreminder.shared.generated.resources.ic_arrow_back
 
-/**
- * Figma "Top bar": Large (tab roots: overline + headline) or Back (sub-screens).
- * Pass [onBack] to get the Back variant.
- */
 @Composable
 fun ScreenHeader(
     title: String,

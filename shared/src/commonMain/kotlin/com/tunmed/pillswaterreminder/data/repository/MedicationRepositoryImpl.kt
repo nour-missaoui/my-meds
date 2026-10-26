@@ -9,6 +9,7 @@ import com.tunmed.pillswaterreminder.domain.model.MedicationStatus
 import com.tunmed.pillswaterreminder.domain.model.ScheduledMedication
 import com.tunmed.pillswaterreminder.domain.repository.MedicationRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 class MedicationRepositoryImpl(
@@ -33,8 +34,19 @@ class MedicationRepositoryImpl(
         }
     }
 
+    override fun observeScheduledMedications(): Flow<List<ScheduledMedication>> =
+        combine(dao.observeAll(), dao.observeOpenSchedules()) { medications, schedules ->
+            val scheduleByMedication = schedules.associateBy { it.medicationId }
+            medications
+                .filter { it.status == MedicationStatus.ACTIVE.name }
+                .mapNotNull { medication ->
+                    scheduleByMedication[medication.id]?.let { schedule ->
+                        ScheduledMedication(medication = medication.toDomain(), schedule = schedule.toDomain())
+                    }
+                }
+        }
+
     override suspend fun save(medication: Medication, schedule: MedSchedule): Long {
-        // TODO(Phase 1): run these writes in one Room write transaction.
         val id = if (medication.id == 0L) {
             dao.insert(medication.toEntity())
         } else {

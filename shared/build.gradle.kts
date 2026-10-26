@@ -20,12 +20,12 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     android {
        namespace = "com.tunmed.pillswaterreminder.shared"
        compileSdk = libs.versions.android.compileSdk.get().toInt()
        minSdk = libs.versions.android.minSdk.get().toInt()
-    
+
        compilerOptions {
            jvmTarget = JvmTarget.JVM_11
        }
@@ -41,10 +41,9 @@ kotlin {
            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
        }
     }
-    
+
     sourceSets {
         all {
-            // kotlin.time.Instant / Clock are used across the domain layer.
             languageSettings.optIn("kotlin.time.ExperimentalTime")
         }
         androidMain.dependencies {
@@ -63,19 +62,15 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            // Navigation (type-safe routes need kotlinx.serialization)
             implementation(libs.navigation.compose)
             implementation(libs.kotlinx.serialization.core)
-            // Dependency injection
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
-            // Data
             implementation(libs.androidx.room3.runtime)
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.androidx.datastore)
             implementation(libs.androidx.datastore.preferences)
-            // Core
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
         }
@@ -88,13 +83,11 @@ kotlin {
 
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
-    // Room 3 code generation (one KSP configuration per target)
     add("kspAndroid", libs.androidx.room3.compiler)
     add("kspIosArm64", libs.androidx.room3.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room3.compiler)
 }
 
 room3 {
-    // Exported schemas: commit them, they are used for migrations.
     schemaDirectory("$projectDir/schemas")
 }

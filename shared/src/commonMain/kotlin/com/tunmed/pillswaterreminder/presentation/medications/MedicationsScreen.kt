@@ -73,7 +73,6 @@ fun MedicationsScreen(
     }
 }
 
-/** Placeholder for the Figma "Medication card" component (Phase 3). */
 @Composable
 private fun MedicationRow(medication: Medication, onClick: () -> Unit) {
     Card(
