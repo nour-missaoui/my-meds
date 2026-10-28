@@ -5,4 +5,6 @@ interface ReminderPermissions {
     fun exactAlarmsAllowed(): Boolean
     fun openNotificationSettings()
     fun openExactAlarmSettings()
+    fun batteryOptimizationIgnored(): Boolean
+    fun openBatterySettings()
 }

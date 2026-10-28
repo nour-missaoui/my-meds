@@ -45,4 +45,10 @@ interface MedicationDao {
 
     @Query("UPDATE med_schedule SET validTo = :validTo WHERE id = :id")
     suspend fun closeSchedule(id: Long, validTo: String)
+
+    @Query("UPDATE medication SET status = 'ARCHIVED' WHERE status != 'ARCHIVED' AND endDate IS NOT NULL AND endDate < :date")
+    suspend fun archiveEndedBefore(date: String): Int
+
+    @Query("UPDATE medication SET status = 'ACTIVE', endDate = CASE WHEN endDate < :today THEN NULL ELSE endDate END WHERE id = :id")
+    suspend fun restore(id: Long, today: String)
 }

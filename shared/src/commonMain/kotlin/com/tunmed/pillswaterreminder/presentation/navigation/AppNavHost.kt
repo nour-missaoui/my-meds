@@ -54,10 +54,11 @@ fun AppNavHost(
         ) {
             composable<OnboardingRoute> {
                 OnboardingScreen(
-                    onFinished = {
+                    onFinished = { addMedication ->
                         navController.navigate(TodayRoute) {
                             popUpTo<OnboardingRoute> { inclusive = true }
                         }
+                        if (addMedication) navController.navigate(EditMedicationRoute())
                     },
                 )
             }

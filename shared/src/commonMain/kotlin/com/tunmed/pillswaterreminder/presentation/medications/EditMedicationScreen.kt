@@ -1,6 +1,9 @@
 package com.tunmed.pillswaterreminder.presentation.medications
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,8 +13,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -41,18 +47,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tunmed.pillswaterreminder.core.time.parseTime
 import com.tunmed.pillswaterreminder.core.time.toHhMm
+import com.tunmed.pillswaterreminder.domain.model.MedicationColor
 import com.tunmed.pillswaterreminder.domain.model.MedicationForm
 import com.tunmed.pillswaterreminder.domain.model.TimeDose
 import com.tunmed.pillswaterreminder.domain.reminder.DoseTimes
+import com.tunmed.pillswaterreminder.presentation.components.DateField
 import com.tunmed.pillswaterreminder.presentation.components.ScreenHeader
 import com.tunmed.pillswaterreminder.presentation.components.SelectField
 import com.tunmed.pillswaterreminder.presentation.theme.AppTheme
+import com.tunmed.pillswaterreminder.presentation.theme.toColor
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -62,10 +77,17 @@ import pillswaterreminder.shared.generated.resources.action_cancel
 import pillswaterreminder.shared.generated.resources.action_delete
 import pillswaterreminder.shared.generated.resources.action_delete_medication
 import pillswaterreminder.shared.generated.resources.action_ok
+import pillswaterreminder.shared.generated.resources.action_remove
 import pillswaterreminder.shared.generated.resources.action_save
 import pillswaterreminder.shared.generated.resources.amount_error
 import pillswaterreminder.shared.generated.resources.cd_fewer_times
 import pillswaterreminder.shared.generated.resources.cd_more_times
+import pillswaterreminder.shared.generated.resources.colour_amber
+import pillswaterreminder.shared.generated.resources.colour_aqua
+import pillswaterreminder.shared.generated.resources.colour_coral
+import pillswaterreminder.shared.generated.resources.colour_green
+import pillswaterreminder.shared.generated.resources.colour_grey
+import pillswaterreminder.shared.generated.resources.colour_red
 import pillswaterreminder.shared.generated.resources.delete_dialog_body
 import pillswaterreminder.shared.generated.resources.delete_dialog_title
 import pillswaterreminder.shared.generated.resources.dose_mode_details
@@ -73,16 +95,24 @@ import pillswaterreminder.shared.generated.resources.dose_mode_quick
 import pillswaterreminder.shared.generated.resources.dose_per_time_hint
 import pillswaterreminder.shared.generated.resources.dose_preview
 import pillswaterreminder.shared.generated.resources.dose_quick_placeholder
+import pillswaterreminder.shared.generated.resources.end_before_start
+import pillswaterreminder.shared.generated.resources.end_date_note
 import pillswaterreminder.shared.generated.resources.ic_add
 import pillswaterreminder.shared.generated.resources.ic_remove
 import pillswaterreminder.shared.generated.resources.label_amount
+import pillswaterreminder.shared.generated.resources.label_colour
 import pillswaterreminder.shared.generated.resources.label_dose
 import pillswaterreminder.shared.generated.resources.label_dose_per_time
+import pillswaterreminder.shared.generated.resources.label_end_date
 import pillswaterreminder.shared.generated.resources.label_form
 import pillswaterreminder.shared.generated.resources.label_name
+import pillswaterreminder.shared.generated.resources.label_note
+import pillswaterreminder.shared.generated.resources.label_start_date
 import pillswaterreminder.shared.generated.resources.label_strength
 import pillswaterreminder.shared.generated.resources.label_times_per_day
 import pillswaterreminder.shared.generated.resources.label_unit
+import pillswaterreminder.shared.generated.resources.no_end_date
+import pillswaterreminder.shared.generated.resources.note_placeholder
 import pillswaterreminder.shared.generated.resources.strength_placeholder
 import pillswaterreminder.shared.generated.resources.time_picker_title
 import pillswaterreminder.shared.generated.resources.times_error
@@ -111,6 +141,10 @@ fun EditMedicationScreen(
         mutableStateOf(ScheduleDraft.startingOn(viewModel.today))
     }
     var perTime by rememberSaveable { mutableStateOf(false) }
+    var startDateText by rememberSaveable { mutableStateOf(viewModel.today.toString()) }
+    var endDateText by rememberSaveable { mutableStateOf("") }
+    var note by rememberSaveable { mutableStateOf("") }
+    var colorKey by rememberSaveable { mutableStateOf(MedicationColor.CORAL.name) }
     val perTimeAmounts = rememberSaveable(saver = StringMapSaver) { mutableStateMapOf<String, String>() }
     val perTimeTexts = rememberSaveable(saver = StringMapSaver) { mutableStateMapOf<String, String>() }
     var medicationLoaded by rememberSaveable { mutableStateOf(false) }
@@ -127,6 +161,10 @@ fun EditMedicationScreen(
             loaded.doseAmount?.let { amountText = formatDoseAmount(it) }
             strength = loaded.strength.orEmpty()
             detailed = loaded.hasDoseDetails
+            startDateText = loaded.startDate.toString()
+            endDateText = loaded.endDate?.toString().orEmpty()
+            note = loaded.note.orEmpty()
+            colorKey = loaded.color.name
             medicationLoaded = true
         }
     }
@@ -148,7 +186,11 @@ fun EditMedicationScreen(
     val form = MedicationForm.entries.firstOrNull { it.name == formKey } ?: MedicationForm.TABLET
     val unit = form.units.firstOrNull { it.name == unitKey } ?: form.defaultUnit
 
-    val rule = scheduleDraft.toRule()
+    val startDate = LocalDate.parse(startDateText)
+    val endDate = endDateText.takeIf { it.isNotBlank() }?.let { LocalDate.parse(it) }
+    val datesValid = endDate == null || endDate >= startDate
+    val color = MedicationColor.entries.firstOrNull { it.name == colorKey } ?: MedicationColor.CORAL
+    val rule = scheduleDraft.copy(anchor = startDate).toRule()
     val usesTimes = scheduleDraft.kind.hasTimes
     val doseTimes = times.split(',').mapNotNull { parseTime(it) }
     val hasDuplicateTimes = doseTimes.size != doseTimes.distinct().size
@@ -289,6 +331,35 @@ fun EditMedicationScreen(
 
         ScheduleSection(draft = scheduleDraft, onChange = { scheduleDraft = it })
 
+        DateField(
+            label = stringResource(Res.string.label_start_date),
+            date = startDate,
+            onDateChange = { picked -> picked?.let { startDateText = it.toString() } },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        DateField(
+            label = stringResource(Res.string.label_end_date),
+            date = endDate,
+            onDateChange = { picked -> endDateText = picked?.toString().orEmpty() },
+            emptyText = stringResource(Res.string.no_end_date),
+            clearLabel = stringResource(Res.string.action_remove),
+            initialPickerDate = startDate,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        if (!datesValid) {
+            Text(
+                stringResource(Res.string.end_before_start),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+        } else if (endDate != null) {
+            Text(
+                stringResource(Res.string.end_date_note),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
         if (usesTimes) TimesPerDay(
             times = doseTimes,
             hasDuplicates = hasDuplicateTimes,
@@ -324,6 +395,16 @@ fun EditMedicationScreen(
             },
         )
 
+        ColourPicker(selected = color, onSelect = { colorKey = it.name })
+        OutlinedTextField(
+            value = note,
+            onValueChange = { note = it },
+            label = { Text(stringResource(Res.string.label_note)) },
+            placeholder = { Text(stringResource(Res.string.note_placeholder)) },
+            maxLines = 3,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
         Button(
             onClick = {
                 val text = medicationDoseText
@@ -339,7 +420,7 @@ fun EditMedicationScreen(
                 } else {
                     emptyMap()
                 }
-                if (dose != null && rule != null && timesReady) {
+                if (dose != null && rule != null && timesReady && datesValid) {
                     viewModel.save(
                         name = name,
                         dose = dose,
@@ -347,11 +428,15 @@ fun EditMedicationScreen(
                         doseByTime = doseByTime,
                         rule = rule,
                         headsUpDays = scheduleDraft.headsUpToSave(),
+                        startDate = startDate,
+                        endDate = endDate,
+                        note = note,
+                        color = color,
                         onSaved = onBack,
                     )
                 }
             },
-            enabled = name.isNotBlank() && doseReady && rule != null && timesReady,
+            enabled = name.isNotBlank() && doseReady && rule != null && timesReady && datesValid,
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
             modifier = Modifier.fillMaxWidth(),
         ) {
@@ -521,3 +606,38 @@ private fun DoseTimePickerDialog(
         },
     )
 }
+
+@Composable
+private fun ColourPicker(selected: MedicationColor, onSelect: (MedicationColor) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.s)) {
+        Text(stringResource(Res.string.label_colour), style = MaterialTheme.typography.titleSmall)
+        Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.m)) {
+            MedicationColor.entries.forEach { option ->
+                val name = stringResource(colourNameRes(option))
+                Box(
+                    Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(option.toColor())
+                        .border(
+                            width = if (option == selected) 3.dp else 0.dp,
+                            color = if (option == selected) MaterialTheme.colorScheme.onSurface else option.toColor(),
+                            shape = CircleShape,
+                        )
+                        .selectable(selected = option == selected, role = Role.RadioButton, onClick = { onSelect(option) })
+                        .semantics { contentDescription = name },
+                )
+            }
+        }
+    }
+}
+
+private fun colourNameRes(color: MedicationColor): StringResource = when (color) {
+    MedicationColor.CORAL -> Res.string.colour_coral
+    MedicationColor.AQUA -> Res.string.colour_aqua
+    MedicationColor.AMBER -> Res.string.colour_amber
+    MedicationColor.GREEN -> Res.string.colour_green
+    MedicationColor.RED -> Res.string.colour_red
+    MedicationColor.GREY -> Res.string.colour_grey
+}
+

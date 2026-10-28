@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.app.NotificationManagerCompat
 import com.tunmed.pillswaterreminder.domain.reminder.ReminderPermissions
@@ -39,6 +40,15 @@ class AndroidReminderPermissions(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             start(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, packageUri()))
         }
+    }
+
+    override fun batteryOptimizationIgnored(): Boolean {
+        val power = context.getSystemService(PowerManager::class.java) ?: return true
+        return power.isIgnoringBatteryOptimizations(context.packageName)
+    }
+
+    override fun openBatterySettings() {
+        start(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
     }
 
     private fun appDetailsIntent() = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageUri())

@@ -45,6 +45,7 @@ class RescheduleAllUseCase(
         val settings = settingsRepository.observe().first()
         val missedAfter = settings.missedAfterMinutes.minutes
         val snooze = settings.snoozeMinutes.minutes
+        medicationRepository.archiveEndedBefore(nowLocal.date)
         val scheduled = medicationRepository.getScheduledMedications()
         val byMedication = scheduled.associateBy { it.medication.id }
 
@@ -76,6 +77,7 @@ class RescheduleAllUseCase(
                                     time = occurrence.at.time,
                                     doseText = item.schedule.doseTextAt(occurrence.at.time, medication.dose),
                                     silent = !settings.soundEnabled,
+                                    vibrate = settings.vibrationEnabled,
                                 ),
                             )
                         }
@@ -108,6 +110,7 @@ class RescheduleAllUseCase(
                     time = time,
                     doseText = item.schedule.doseTextAt(time, item.medication.dose),
                     silent = !settings.soundEnabled,
+                    vibrate = settings.vibrationEnabled,
                 ),
             )
         }

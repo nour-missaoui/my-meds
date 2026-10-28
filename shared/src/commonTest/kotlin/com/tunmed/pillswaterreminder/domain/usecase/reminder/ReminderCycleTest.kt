@@ -199,8 +199,33 @@ class ReminderCycleTest {
         assertEquals(listOf("2 tablets", "500 mg"), env.notifier.shown.map { it.doseText }, "08:00 has its own dose, 20:00 uses the medication's")
     }
 
+    @Test
+    fun m5_medication_is_archived_the_day_after_its_end_date() = runTest {
+        val ending = MEDICATION.copy(endDate = LocalDate(2026, 10, 26))
+        val env = Env(initial = listOf(ScheduledMedication(ending, SCHEDULE)))
+        env.runAt(at(7, 0))
+        env.runAt(at(8, 0))
+        env.runAt(at(20, 0))
+        assertEquals(MedicationStatus.ACTIVE, env.meds.statusOf(MED_ID))
+        assertEquals(2, env.notifier.shown.size)
+        env.runAt(at(8, 0, day = 27))
+        assertEquals(MedicationStatus.ARCHIVED, env.meds.statusOf(MED_ID))
+        assertEquals(2, env.notifier.shown.size)
+        assertNull(env.scheduler.armedAt)
+    }
+
+    @Test
+    fun vibration_setting_reaches_the_reminder() = runTest {
+        val env = Env()
+        env.settings.update { it.copy(vibrationEnabled = false) }
+        env.runAt(at(7, 0))
+        env.runAt(at(8, 0))
+        assertEquals(false, env.notifier.shown.single().vibrate)
+    }
+
     private class Env(initial: List<ScheduledMedication> = listOf(ScheduledMedication(MEDICATION, SCHEDULE))) {
         val time = FakeTimeProvider(at(0, 0))
+        val settings = FakeSettingsRepository()
         val meds = FakeMedicationRepository(initial)
         val logs = FakeDoseLogRepository()
         val state = FakeReminderStateRepository()
@@ -210,7 +235,7 @@ class ReminderCycleTest {
             engine = ScheduleEngine(),
             medicationRepository = meds,
             doseLogRepository = logs,
-            settingsRepository = FakeSettingsRepository(),
+            settingsRepository = settings,
             reminderStateRepository = state,
             scheduler = scheduler,
             notifier = notifier,
@@ -269,6 +294,32 @@ private class FakeMedicationRepository(initial: List<ScheduledMedication>) : Med
 
     override fun observeScheduledMedications(): Flow<List<ScheduledMedication>> =
         items.map { list -> list.filter { it.medication.status == MedicationStatus.ACTIVE } }
+
+    override fun observeCurrentSchedules(): Flow<List<MedSchedule>> = items.map { list -> list.map { it.schedule } }
+
+    override suspend fun archiveEndedBefore(date: LocalDate) {
+        items.value = items.value.map { item ->
+            val end = item.medication.endDate
+            if (end != null && end < date && item.medication.status != MedicationStatus.ARCHIVED) {
+                ScheduledMedication(item.medication.copy(status = MedicationStatus.ARCHIVED), item.schedule)
+            } else {
+                item
+            }
+        }
+    }
+
+    override suspend fun restore(id: Long, today: LocalDate) {
+        items.value = items.value.map { item ->
+            if (item.medication.id != id) {
+                item
+            } else {
+                val end = item.medication.endDate?.takeIf { it >= today }
+                ScheduledMedication(item.medication.copy(status = MedicationStatus.ACTIVE, endDate = end), item.schedule)
+            }
+        }
+    }
+
+    fun statusOf(id: Long): MedicationStatus? = items.value.firstOrNull { it.medication.id == id }?.medication?.status
 
     override suspend fun save(medication: Medication, schedule: MedSchedule): Long {
         val id = if (medication.id == 0L) (items.value.maxOfOrNull { it.medication.id } ?: 0L) + 1 else medication.id

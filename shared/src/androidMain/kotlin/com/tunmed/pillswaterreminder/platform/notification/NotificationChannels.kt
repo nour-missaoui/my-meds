@@ -6,6 +6,7 @@ import androidx.core.app.NotificationManagerCompat
 
 object NotificationChannels {
     const val MEDICATIONS = "medications"
+    const val MEDICATIONS_NO_VIBRATION = "medications_no_vibration"
     const val UPCOMING = "upcoming"
 
     private const val LEGACY_WATER = "water"
@@ -16,6 +17,11 @@ object NotificationChannels {
             NotificationChannelCompat.Builder(MEDICATIONS, NotificationManagerCompat.IMPORTANCE_HIGH)
                 .setName("Medications")
                 .setDescription("Dose reminders with Taken, Snooze and Skip")
+                .build(),
+            NotificationChannelCompat.Builder(MEDICATIONS_NO_VIBRATION, NotificationManagerCompat.IMPORTANCE_HIGH)
+                .setName("Medications (no vibration)")
+                .setDescription("Dose reminders when vibration is off in the app's settings")
+                .setVibrationEnabled(false)
                 .build(),
             NotificationChannelCompat.Builder(UPCOMING, NotificationManagerCompat.IMPORTANCE_LOW)
                 .setName("Upcoming")

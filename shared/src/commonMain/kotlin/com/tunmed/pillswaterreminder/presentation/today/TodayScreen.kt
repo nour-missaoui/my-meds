@@ -2,56 +2,67 @@ package com.tunmed.pillswaterreminder.presentation.today
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tunmed.pillswaterreminder.core.time.toHhMm
 import com.tunmed.pillswaterreminder.domain.model.DoseStatus
+import com.tunmed.pillswaterreminder.domain.reminder.UpcomingDose
+import com.tunmed.pillswaterreminder.presentation.components.ColorDot
 import com.tunmed.pillswaterreminder.presentation.components.PlaceholderCard
 import com.tunmed.pillswaterreminder.presentation.components.ScreenHeader
+import com.tunmed.pillswaterreminder.presentation.components.StatusChip
+import com.tunmed.pillswaterreminder.presentation.components.dayLabel
+import com.tunmed.pillswaterreminder.presentation.components.doseStatusStyle
+import com.tunmed.pillswaterreminder.presentation.components.longDayLabel
+import com.tunmed.pillswaterreminder.presentation.permissions.rememberNotificationPermissionRequest
 import com.tunmed.pillswaterreminder.presentation.theme.AppTheme
+import com.tunmed.pillswaterreminder.presentation.theme.toColor
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import pillswaterreminder.shared.generated.resources.Res
 import pillswaterreminder.shared.generated.resources.action_add_medication
 import pillswaterreminder.shared.generated.resources.action_allow
+import pillswaterreminder.shared.generated.resources.action_log_dose
 import pillswaterreminder.shared.generated.resources.action_skip
 import pillswaterreminder.shared.generated.resources.action_taken
 import pillswaterreminder.shared.generated.resources.action_turn_on
+import pillswaterreminder.shared.generated.resources.as_needed_none
+import pillswaterreminder.shared.generated.resources.as_needed_taken
 import pillswaterreminder.shared.generated.resources.banner_exact_alarms_off
 import pillswaterreminder.shared.generated.resources.banner_notifications_off
-import pillswaterreminder.shared.generated.resources.status_due
-import pillswaterreminder.shared.generated.resources.status_missed
-import pillswaterreminder.shared.generated.resources.status_not_logged
-import pillswaterreminder.shared.generated.resources.status_skipped
-import pillswaterreminder.shared.generated.resources.status_snoozed
-import pillswaterreminder.shared.generated.resources.status_taken_at
-import pillswaterreminder.shared.generated.resources.status_upcoming
+import pillswaterreminder.shared.generated.resources.section_upcoming
+import pillswaterreminder.shared.generated.resources.section_when_needed
 import pillswaterreminder.shared.generated.resources.title_today
 import pillswaterreminder.shared.generated.resources.today_empty_body
 import pillswaterreminder.shared.generated.resources.today_empty_title
 import pillswaterreminder.shared.generated.resources.today_no_doses_body
 import pillswaterreminder.shared.generated.resources.today_no_doses_title
+import pillswaterreminder.shared.generated.resources.today_progress
+import pillswaterreminder.shared.generated.resources.upcoming_in
 
 @Composable
 fun TodayScreen(
@@ -65,74 +76,138 @@ fun TodayScreen(
         onPauseOrDispose { }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = AppTheme.spacing.l),
+    val requestNotifications = rememberNotificationPermissionRequest { granted ->
+        if (!granted) viewModel.openNotificationSettings()
+        viewModel.refresh()
+    }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(start = AppTheme.spacing.l, end = AppTheme.spacing.l, bottom = AppTheme.spacing.xxl),
         verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
     ) {
-        ScreenHeader(title = stringResource(Res.string.title_today), overline = state.date?.toString())
-
+        item(key = "header") {
+            ScreenHeader(title = stringResource(Res.string.title_today), overline = state.date?.let { longDayLabel(it) })
+        }
         if (!state.notificationsAllowed) {
-            PermissionBanner(
-                text = stringResource(Res.string.banner_notifications_off),
-                actionLabel = stringResource(Res.string.action_turn_on),
-                onAction = viewModel::openNotificationSettings,
-            )
+            item(key = "banner-notifications") {
+                PermissionBanner(
+                    text = stringResource(Res.string.banner_notifications_off),
+                    actionLabel = stringResource(Res.string.action_turn_on),
+                    onAction = requestNotifications,
+                )
+            }
         }
         if (!state.exactAlarmsAllowed) {
-            PermissionBanner(
-                text = stringResource(Res.string.banner_exact_alarms_off),
-                actionLabel = stringResource(Res.string.action_allow),
-                onAction = viewModel::openExactAlarmSettings,
-            )
-        }
-
-        when {
-            !state.hasMedications -> {
-                PlaceholderCard(
-                    title = stringResource(Res.string.today_empty_title),
-                    body = stringResource(Res.string.today_empty_body),
+            item(key = "banner-exact") {
+                PermissionBanner(
+                    text = stringResource(Res.string.banner_exact_alarms_off),
+                    actionLabel = stringResource(Res.string.action_allow),
+                    onAction = viewModel::openExactAlarmSettings,
                 )
-                Button(
-                    onClick = onAddMedication,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(stringResource(Res.string.action_add_medication))
-                }
-            }
-            state.rows.isEmpty() -> PlaceholderCard(
-                title = stringResource(Res.string.today_no_doses_title),
-                body = stringResource(Res.string.today_no_doses_body),
-            )
-            else -> state.rows.forEach { row ->
-                key(row.key) {
-                    DoseRow(row = row, onAnswer = { status -> viewModel.answer(row, status) })
-                }
             }
         }
-        Spacer(Modifier.height(AppTheme.spacing.xl))
+        if (state.loaded && !state.hasMedications) {
+            item(key = "empty") {
+                Column(verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.m)) {
+                    PlaceholderCard(
+                        title = stringResource(Res.string.today_empty_title),
+                        body = stringResource(Res.string.today_empty_body),
+                    )
+                    Button(
+                        onClick = onAddMedication,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(Res.string.action_add_medication))
+                    }
+                }
+            }
+        } else if (state.loaded) {
+            if (state.rows.isNotEmpty()) {
+                item(key = "progress") { ProgressCard(taken = state.takenCount, total = state.rows.size) }
+            } else if (state.asNeeded.isEmpty()) {
+                item(key = "no-doses") {
+                    PlaceholderCard(
+                        title = stringResource(Res.string.today_no_doses_title),
+                        body = stringResource(Res.string.today_no_doses_body),
+                    )
+                }
+            }
+            state.timeGroups.forEach { (time, rows) ->
+                item(key = "time-$time") {
+                    TimeGroup(time = time, rows = rows, onAnswer = viewModel::answer)
+                }
+            }
+            if (state.asNeeded.isNotEmpty()) {
+                item(key = "as-needed-title") { SectionTitle(stringResource(Res.string.section_when_needed)) }
+                items(state.asNeeded, key = { "as-needed-${it.item.medication.id}" }) { row ->
+                    AsNeededCard(row = row, onLog = { viewModel.logAsNeeded(row.item.medication.id) })
+                }
+            }
+            if (state.upcoming.isNotEmpty()) {
+                item(key = "upcoming") { UpcomingCard(state.upcoming) }
+            }
+        }
     }
 }
 
 @Composable
-private fun DoseRow(row: TodayDoseRow, onAnswer: (DoseStatus) -> Unit) {
-    val (statusLabel, statusColor) = statusOf(row)
+private fun SectionTitle(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = AppTheme.spacing.s),
+    )
+}
+
+@Composable
+private fun ProgressCard(taken: Int, total: Int) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+    ) {
+        Column(Modifier.padding(AppTheme.spacing.l), verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.s)) {
+            Text(
+                pluralStringResource(Res.plurals.today_progress, total, taken, total),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            LinearProgressIndicator(
+                progress = { if (total == 0) 0f else taken.toFloat() / total },
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surface,
+            )
+        }
+    }
+}
+
+@Composable
+private fun TimeGroup(time: String, rows: List<TodayDoseRow>, onAnswer: (TodayDoseRow, DoseStatus) -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.m)) {
+        Text(
+            time,
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.width(52.dp).padding(top = AppTheme.spacing.l),
+        )
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.s)) {
+            rows.forEach { row -> DoseCard(row = row, onAnswer = { status -> onAnswer(row, status) }) }
+        }
+    }
+}
+
+@Composable
+private fun DoseCard(row: TodayDoseRow, onAnswer: (DoseStatus) -> Unit) {
+    val style = doseStatusStyle(row.dose.status, row.actedTime, row.time, row.isPast)
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
-        Column(
-            modifier = Modifier.padding(AppTheme.spacing.l),
-            verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.s),
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(AppTheme.spacing.m),
-            ) {
-                Text(row.time, style = MaterialTheme.typography.titleMedium)
+        Column(Modifier.padding(AppTheme.spacing.l), verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.s)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ColorDot(row.dose.medication.color.toColor())
                 Column(Modifier.weight(1f)) {
                     Text(row.dose.medication.name, style = MaterialTheme.typography.titleMedium)
                     Text(
@@ -141,7 +216,7 @@ private fun DoseRow(row: TodayDoseRow, onAnswer: (DoseStatus) -> Unit) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                Text(statusLabel, style = MaterialTheme.typography.labelLarge, color = statusColor)
+                StatusChip(style)
             }
             if (row.canAnswer) {
                 Row(
@@ -161,18 +236,60 @@ private fun DoseRow(row: TodayDoseRow, onAnswer: (DoseStatus) -> Unit) {
 }
 
 @Composable
-private fun statusOf(row: TodayDoseRow): Pair<String, Color> = when (row.dose.status) {
-    DoseStatus.TAKEN -> stringResource(Res.string.status_taken_at, row.actedTime ?: row.time) to AppTheme.colors.taken
-    DoseStatus.SKIPPED -> stringResource(Res.string.status_skipped) to AppTheme.colors.skipped
-    DoseStatus.MISSED -> stringResource(Res.string.status_missed) to AppTheme.colors.missed
-    DoseStatus.SNOOZED -> stringResource(Res.string.status_snoozed) to AppTheme.colors.due
-    DoseStatus.PENDING -> stringResource(Res.string.status_due) to AppTheme.colors.due
-    null ->
-        if (row.isPast) {
-            stringResource(Res.string.status_not_logged) to AppTheme.colors.textTertiary
-        } else {
-            stringResource(Res.string.status_upcoming) to MaterialTheme.colorScheme.onSurfaceVariant
+private fun AsNeededCard(row: AsNeededRow, onLog: () -> Unit) {
+    val medication = row.item.medication
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    ) {
+        Row(Modifier.padding(AppTheme.spacing.l), verticalAlignment = Alignment.CenterVertically) {
+            ColorDot(medication.color.toColor())
+            Column(Modifier.weight(1f)) {
+                Text(medication.name, style = MaterialTheme.typography.titleMedium)
+                Text(medication.dose, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    if (row.item.takenCount > 0 && row.lastTime != null) {
+                        pluralStringResource(Res.plurals.as_needed_taken, row.item.takenCount, row.item.takenCount, row.lastTime)
+                    } else {
+                        stringResource(Res.string.as_needed_none)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            FilledTonalButton(onClick = onLog) { Text(stringResource(Res.string.action_log_dose)) }
         }
+    }
+}
+
+@Composable
+private fun UpcomingCard(upcoming: List<UpcomingDose>) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    ) {
+        Column(Modifier.padding(AppTheme.spacing.l), verticalArrangement = Arrangement.spacedBy(AppTheme.spacing.m)) {
+            Text(stringResource(Res.string.section_upcoming), style = MaterialTheme.typography.titleSmall)
+            upcoming.forEach { dose ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ColorDot(dose.medication.color.toColor())
+                    Column(Modifier.weight(1f)) {
+                        Text(dose.medication.name, style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            "${dayLabel(dose.dueAt.date)}, ${dose.dueAt.time.toHhMm()}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Text(
+                        pluralStringResource(Res.plurals.upcoming_in, dose.daysAhead, dose.daysAhead),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable

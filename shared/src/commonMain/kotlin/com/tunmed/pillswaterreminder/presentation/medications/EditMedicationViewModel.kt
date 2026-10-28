@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.tunmed.pillswaterreminder.core.time.TimeProvider
 import com.tunmed.pillswaterreminder.domain.model.MedSchedule
 import com.tunmed.pillswaterreminder.domain.model.Medication
+import com.tunmed.pillswaterreminder.domain.model.MedicationColor
 import com.tunmed.pillswaterreminder.domain.model.MedicationForm
 import com.tunmed.pillswaterreminder.domain.model.RecurrenceRule
 import com.tunmed.pillswaterreminder.domain.model.TimeDose
@@ -52,6 +53,10 @@ class EditMedicationViewModel(
         doseByTime: Map<LocalTime, TimeDose>,
         rule: RecurrenceRule,
         headsUpDays: Int,
+        startDate: LocalDate,
+        endDate: LocalDate?,
+        note: String,
+        color: MedicationColor,
         onSaved: () -> Unit,
     ) {
         if (saving || (!isNew && medication.value == null)) return
@@ -70,7 +75,13 @@ class EditMedicationViewModel(
                     strength = dose.strength?.trim()?.ifEmpty { null },
                 )
             }
-            val updated = withDose.copy(name = name.trim())
+            val updated = withDose.copy(
+                name = name.trim(),
+                startDate = startDate,
+                endDate = endDate,
+                note = note.trim().ifEmpty { null },
+                color = color,
+            )
             saveMedication(
                 medication = updated,
                 schedule = MedSchedule(

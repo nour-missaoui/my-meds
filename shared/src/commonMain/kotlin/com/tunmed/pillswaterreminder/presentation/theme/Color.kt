@@ -34,4 +34,8 @@ internal object Palette {
     val StatusDueContainer = Color(0xFFFFF0D2)
     val StatusSkipped = Color(0xFF56696C)
     val StatusSkippedContainer = Color(0xFFECEFF0)
+
+    val SwatchAmber = Color(0xFFF2B33D)
+    val SwatchGreen = Color(0xFF3FA36F)
+    val SwatchRed = Color(0xFFD9534F)
 }

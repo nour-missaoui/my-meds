@@ -12,15 +12,23 @@ import com.tunmed.pillswaterreminder.domain.repository.DoseLogRepository
 import com.tunmed.pillswaterreminder.domain.repository.MedicationRepository
 import com.tunmed.pillswaterreminder.domain.repository.ReminderStateRepository
 import com.tunmed.pillswaterreminder.domain.repository.SettingsRepository
+import com.tunmed.pillswaterreminder.domain.usecase.dose.CorrectDoseLogUseCase
+import com.tunmed.pillswaterreminder.domain.usecase.dose.LogAsNeededDoseUseCase
 import com.tunmed.pillswaterreminder.domain.usecase.dose.RecordDoseActionUseCase
+import com.tunmed.pillswaterreminder.domain.usecase.history.ObserveHistoryUseCase
 import com.tunmed.pillswaterreminder.domain.usecase.medication.DeleteMedicationUseCase
 import com.tunmed.pillswaterreminder.domain.usecase.medication.GetCurrentScheduleUseCase
+import com.tunmed.pillswaterreminder.domain.usecase.medication.ObserveMedicationOverviewUseCase
 import com.tunmed.pillswaterreminder.domain.usecase.medication.ObserveMedicationUseCase
 import com.tunmed.pillswaterreminder.domain.usecase.medication.ObserveMedicationsUseCase
+import com.tunmed.pillswaterreminder.domain.usecase.medication.RestoreMedicationUseCase
 import com.tunmed.pillswaterreminder.domain.usecase.medication.SaveMedicationUseCase
 import com.tunmed.pillswaterreminder.domain.usecase.medication.SetMedicationStatusUseCase
 import com.tunmed.pillswaterreminder.domain.usecase.reminder.RescheduleAllUseCase
+import com.tunmed.pillswaterreminder.domain.usecase.settings.UpdateSettingsUseCase
+import com.tunmed.pillswaterreminder.domain.usecase.today.ObserveAsNeededTodayUseCase
 import com.tunmed.pillswaterreminder.domain.usecase.today.ObserveTodayDosesUseCase
+import com.tunmed.pillswaterreminder.domain.usecase.today.ObserveUpcomingUseCase
 import com.tunmed.pillswaterreminder.presentation.AppViewModel
 import com.tunmed.pillswaterreminder.presentation.history.HistoryViewModel
 import com.tunmed.pillswaterreminder.presentation.medications.EditMedicationViewModel
@@ -61,10 +69,18 @@ val domainModule = module {
     factoryOf(::SetMedicationStatusUseCase)
     factoryOf(::GetCurrentScheduleUseCase)
     factoryOf(::DeleteMedicationUseCase)
+    factoryOf(::RestoreMedicationUseCase)
 
     factoryOf(::ObserveTodayDosesUseCase)
 
     factoryOf(::RecordDoseActionUseCase)
+    factoryOf(::LogAsNeededDoseUseCase)
+    factoryOf(::CorrectDoseLogUseCase)
+    factoryOf(::ObserveUpcomingUseCase)
+    factoryOf(::ObserveAsNeededTodayUseCase)
+    factoryOf(::ObserveMedicationOverviewUseCase)
+    factoryOf(::ObserveHistoryUseCase)
+    factoryOf(::UpdateSettingsUseCase)
 }
 
 val presentationModule = module {

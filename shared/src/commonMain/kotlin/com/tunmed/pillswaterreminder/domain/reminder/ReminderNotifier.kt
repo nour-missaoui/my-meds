@@ -12,6 +12,7 @@ data class DueDose(
     val time: LocalTime,
     val doseText: String,
     val silent: Boolean = false,
+    val vibrate: Boolean = true,
 )
 
 data class UpcomingDose(

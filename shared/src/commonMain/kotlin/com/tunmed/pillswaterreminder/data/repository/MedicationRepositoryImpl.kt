@@ -11,6 +11,7 @@ import com.tunmed.pillswaterreminder.domain.repository.MedicationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.LocalDate
 
 class MedicationRepositoryImpl(
     private val dao: MedicationDao,
@@ -46,6 +47,9 @@ class MedicationRepositoryImpl(
                 }
         }
 
+    override fun observeCurrentSchedules(): Flow<List<MedSchedule>> =
+        dao.observeOpenSchedules().map { list -> list.map { it.toDomain() } }
+
     override suspend fun save(medication: Medication, schedule: MedSchedule): Long {
         val id = if (medication.id == 0L) {
             dao.insert(medication.toEntity())
@@ -62,5 +66,13 @@ class MedicationRepositoryImpl(
 
     override suspend fun setStatus(id: Long, status: MedicationStatus) {
         dao.setStatus(id, status.name)
+    }
+
+    override suspend fun archiveEndedBefore(date: LocalDate) {
+        dao.archiveEndedBefore(date.toString())
+    }
+
+    override suspend fun restore(id: Long, today: LocalDate) {
+        dao.restore(id, today.toString())
     }
 }

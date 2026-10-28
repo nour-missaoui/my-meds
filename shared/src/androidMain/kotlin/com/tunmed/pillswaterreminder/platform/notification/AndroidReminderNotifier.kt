@@ -87,7 +87,7 @@ class AndroidReminderNotifier(private val context: Context) : ReminderNotifier {
     }
 
     private fun doseBuilder(dose: DueDose): NotificationCompat.Builder =
-        NotificationCompat.Builder(context, NotificationChannels.MEDICATIONS)
+        NotificationCompat.Builder(context, if (dose.vibrate) NotificationChannels.MEDICATIONS else NotificationChannels.MEDICATIONS_NO_VIBRATION)
             .setSmallIcon(R.drawable.ic_stat_pill)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
